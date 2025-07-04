@@ -1,0 +1,275 @@
+<!-- Page Header -->
+<div class="mb-8">
+  <h1 class="text-3xl font-bold text-gray-900">Metrics & Analytics</h1>
+  <p class="mt-2 text-gray-600">Comprehensive overview of your URL monitoring performance</p>
+</div>
+
+<!-- Key Metrics Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+  <!-- Total URLs -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-shadow-hover">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+          <i class="fas fa-link text-blue-600 text-xl"></i>
+        </div>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-500">Total URLs</p>
+        <p class="text-2xl font-bold text-gray-900"><%= @total_urls %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active URLs -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-shadow-hover">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+          <i class="fas fa-check-circle text-green-600 text-xl"></i>
+        </div>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-500">Active URLs</p>
+        <p class="text-2xl font-bold text-gray-900"><%= @active_urls %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Average Uptime -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-shadow-hover">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+          <i class="fas fa-chart-line text-purple-600 text-xl"></i>
+        </div>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-500">Avg Uptime</p>
+        <p class="text-2xl font-bold text-gray-900"><%= @avg_uptime %>%</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Average Response Time -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-shadow-hover">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+          <i class="fas fa-tachometer-alt text-orange-600 text-xl"></i>
+        </div>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-500">Avg Response</p>
+        <p class="text-2xl font-bold text-gray-900"><%= @avg_response_time %>ms</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detailed Statistics -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+  <!-- Ping Statistics -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">Ping Statistics</h2>
+    <div class="space-y-4">
+      <div class="flex justify-between items-center">
+        <span class="text-sm text-gray-500">Total Pings</span>
+        <span class="text-lg font-semibold text-gray-900"><%= @total_pings %></span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-sm text-gray-500">Successful Pings</span>
+        <span class="text-lg font-semibold text-green-600"><%= @successful_pings %></span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-sm text-gray-500">Failed Pings</span>
+        <span class="text-lg font-semibold text-red-600"><%= @failed_pings %></span>
+      </div>
+      
+      <!-- Success Rate Progress -->
+      <div class="mt-4">
+        <div class="flex justify-between text-sm mb-1">
+          <span class="text-gray-500">Success Rate</span>
+          <span class="font-medium text-gray-900"><%= @total_pings > 0 ? ((@successful_pings.to_f / @total_pings) * 100).round(1) : 0 %>%</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-3">
+          <div class="bg-green-600 h-3 rounded-full transition-all duration-300" style="width: <%= @total_pings > 0 ? ((@successful_pings.to_f / @total_pings) * 100) : 0 %>%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Response Time Statistics -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">Response Time Analysis</h2>
+    <div class="space-y-4">
+      <div class="flex justify-between items-center">
+        <span class="text-sm text-gray-500">Average Response Time</span>
+        <span class="text-lg font-semibold text-gray-900"><%= @avg_response_time %>ms</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-sm text-gray-500">Fastest Response</span>
+        <span class="text-lg font-semibold text-green-600"><%= @fastest_response %>ms</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-sm text-gray-500">Slowest Response</span>
+        <span class="text-lg font-semibold text-red-600"><%= @slowest_response %>ms</span>
+      </div>
+      
+      <!-- Response Time Range -->
+      <div class="mt-4">
+        <div class="flex justify-between text-sm mb-1">
+          <span class="text-gray-500">Response Time Range</span>
+          <span class="font-medium text-gray-900"><%= @slowest_response - @fastest_response %>ms</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-3 relative">
+          <div class="bg-gradient-to-r from-green-500 to-red-500 h-3 rounded-full" style="width: 100%"></div>
+          <div class="absolute inset-0 flex items-center justify-center">
+            <span class="text-xs font-medium text-white drop-shadow">Range</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Performance Rankings -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+  <!-- Top Performing URLs -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-900">Top Performing URLs</h2>
+      <p class="text-sm text-gray-500">Fastest average response times</p>
+    </div>
+    <div class="p-6">
+      <% if @top_urls.any? %>
+        <div class="space-y-4">
+          <% @top_urls.each_with_index do |url, index| %>
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                  <span class="text-sm font-bold text-green-600">#<%= index + 1 %></span>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-900"><%= url.name %></p>
+                  <p class="text-xs text-gray-500 truncate max-w-xs"><%= url.url %></p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-sm font-semibold text-green-600"><%= url.avg_response_time&.round(0) || 0 %>ms</p>
+                <p class="text-xs text-gray-500"><%= url.total_checks %> checks</p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="text-center py-8">
+          <div class="mx-auto h-12 w-12 text-gray-300">
+            <i class="fas fa-trophy text-3xl"></i>
+          </div>
+          <p class="mt-2 text-sm text-gray-500">No performance data available yet</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- URLs Needing Attention -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-900">URLs Needing Attention</h2>
+      <p class="text-sm text-gray-500">Most failed checks</p>
+    </div>
+    <div class="p-6">
+      <% if @problem_urls.any? %>
+        <div class="space-y-4">
+          <% @problem_urls.each_with_index do |url, index| %>
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                  <span class="text-sm font-bold text-red-600">#<%= index + 1 %></span>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-900"><%= url.name %></p>
+                  <p class="text-xs text-gray-500 truncate max-w-xs"><%= url.url %></p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-sm font-semibold text-red-600"><%= url.failed_checks %> failed</p>
+                <p class="text-xs text-gray-500">of <%= url.total_checks %> checks</p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="text-center py-8">
+          <div class="mx-auto h-12 w-12 text-gray-300">
+            <i class="fas fa-exclamation-triangle text-3xl"></i>
+          </div>
+          <p class="mt-2 text-sm text-gray-500">All URLs are performing well!</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+  <div class="px-6 py-4 border-b border-gray-200">
+    <h2 class="text-lg font-semibold text-gray-900">Recent Activity</h2>
+    <p class="text-sm text-gray-500">Latest ping results across all URLs</p>
+  </div>
+  
+  <% if @recent_pings.any? %>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URL</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Response Time</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Code</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @recent_pings.each do |ping| %>
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <%= ping.created_at.strftime("%b %d, %H:%M") %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900"><%= ping.monitored_url.name %></div>
+                <div class="text-sm text-gray-500 truncate max-w-xs"><%= ping.monitored_url.url %></div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <% if ping.status_code == 200 %>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <i class="fas fa-check-circle mr-1"></i>Success
+                  </span>
+                <% else %>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    <i class="fas fa-times-circle mr-1"></i>Failed
+                  </span>
+                <% end %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <%= ping.response_time&.round(0) || 0 %>ms
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <%= ping.status_code %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="text-center py-12">
+      <div class="mx-auto h-16 w-16 text-gray-300">
+        <i class="fas fa-chart-line text-4xl"></i>
+      </div>
+      <h3 class="mt-4 text-lg font-medium text-gray-900">No activity yet</h3>
+      <p class="mt-2 text-gray-500">Ping results will appear here once monitoring begins.</p>
+    </div>
+  <% end %>
+</div> 

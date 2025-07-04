@@ -1,0 +1,14 @@
+<div id="<%= dom_id monitored_url %>" class="w-full sm:w-auto my-5 space-y-5">
+  <div>
+    <strong class="block font-medium mb-1">Url:</strong>
+    <%= monitored_url.url %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Name:</strong>
+    <%= monitored_url.name %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Active:</strong>
+    <%= monitored_url.active? ? "Yes" : "No" %>
+  </div>
+</div>

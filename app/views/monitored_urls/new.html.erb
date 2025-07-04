@@ -1,0 +1,21 @@
+<% content_for :title, "New monitored url" %>
+
+<!-- Page Header -->
+<div class="mb-8">
+  <div class="flex items-center space-x-4">
+    <%= link_to monitored_urls_path, class: "text-gray-400 hover:text-gray-600 transition-colors" do %>
+      <i class="fas fa-arrow-left text-xl"></i>
+    <% end %>
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Add New URL</h1>
+      <p class="mt-2 text-gray-600">Monitor a new website for uptime and performance</p>
+    </div>
+  </div>
+</div>
+
+<!-- Form Card -->
+<div class="max-w-2xl">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+    <%= render "form", monitored_url: @monitored_url %>
+  </div>
+</div>

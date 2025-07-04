@@ -1,0 +1,198 @@
+<% content_for :title, "Showing monitored url" %>
+
+<div class="md:w-2/3 w-full">
+  <% if notice.present? %>
+    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
+  <% end %>
+
+  <!-- Page Header -->
+  <div class="mb-8">
+    <div class="flex items-center space-x-4">
+      <%= link_to monitored_urls_path, class: "text-gray-400 hover:text-gray-600 transition-colors" do %>
+        <i class="fas fa-arrow-left text-xl"></i>
+      <% end %>
+      <div class="flex-1">
+        <h1 class="text-3xl font-bold text-gray-900"><%= @monitored_url.name %></h1>
+        <p class="mt-2 text-gray-600"><%= @monitored_url.url %></p>
+      </div>
+      <div class="flex space-x-3">
+        <%= link_to edit_monitored_url_path(@monitored_url), class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors" do %>
+          <i class="fas fa-edit mr-2"></i>Edit
+        <% end %>
+        <%= button_to monitored_url_path(@monitored_url), method: :delete, class: "inline-flex items-center px-4 py-2 border border-transparent rounded-lg font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors", data: { turbo_confirm: "Are you sure you want to delete this URL?" } do %>
+          <i class="fas fa-trash mr-2"></i>Delete
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- URL Status Overview -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <!-- Current Status Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">Current Status</h3>
+        <% 
+          last_ping = @monitored_url.ping_results.order(created_at: :desc).first
+          if last_ping&.status_code == 200
+        %>
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+            <i class="fas fa-check-circle mr-1"></i>Online
+          </span>
+        <% else %>
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+            <i class="fas fa-times-circle mr-1"></i>Offline
+          </span>
+        <% end %>
+      </div>
+      
+      <div class="space-y-3">
+        <div class="flex justify-between">
+          <span class="text-sm text-gray-500">Last Check:</span>
+          <span class="text-sm font-medium text-gray-900">
+            <% if last_ping %>
+              <%= time_ago_in_words(last_ping.created_at) %> ago
+            <% else %>
+              Never
+            <% end %>
+          </span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-sm text-gray-500">Response Time:</span>
+          <span class="text-sm font-medium text-gray-900">
+            <% if last_ping %>
+              <%= last_ping.response_time&.round(0) || 0 %>ms
+            <% else %>
+              -
+            <% end %>
+          </span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-sm text-gray-500">Status Code:</span>
+          <span class="text-sm font-medium text-gray-900">
+            <% if last_ping %>
+              <%= last_ping.status_code %>
+            <% else %>
+              -
+            <% end %>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Uptime Statistics Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Uptime Statistics</h3>
+      
+      <% 
+        total = @monitored_url.ping_results.count
+        up = @monitored_url.ping_results.where(status_code: 200).count
+        uptime = total > 0 ? ((up.to_f / total) * 100).round(1) : 0
+      %>
+      
+      <div class="space-y-4">
+        <div>
+          <div class="flex justify-between text-sm mb-1">
+            <span class="text-gray-500">Overall Uptime</span>
+            <span class="font-medium text-gray-900"><%= uptime %>%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-3">
+            <div class="bg-blue-600 h-3 rounded-full transition-all duration-300" style="width: <%= uptime %>%"></div>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4 text-center">
+          <div>
+            <p class="text-2xl font-bold text-green-600"><%= up %></p>
+            <p class="text-xs text-gray-500">Successful</p>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-red-600"><%= total - up %></p>
+            <p class="text-xs text-gray-500">Failed</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Metrics Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Performance</h3>
+      
+      <div class="space-y-4">
+        <div>
+          <p class="text-sm text-gray-500 mb-1">Average Response Time</p>
+          <% avg_response = @monitored_url.ping_results.average(:response_time)&.round(0) || 0 %>
+          <p class="text-2xl font-bold text-gray-900"><%= avg_response %>ms</p>
+        </div>
+        
+        <div>
+          <p class="text-sm text-gray-500 mb-1">Fastest Response</p>
+          <% fastest = @monitored_url.ping_results.minimum(:response_time)&.round(0) || 0 %>
+          <p class="text-lg font-semibold text-green-600"><%= fastest %>ms</p>
+        </div>
+        
+        <div>
+          <p class="text-sm text-gray-500 mb-1">Slowest Response</p>
+          <% slowest = @monitored_url.ping_results.maximum(:response_time)&.round(0) || 0 %>
+          <p class="text-lg font-semibold text-red-600"><%= slowest %>ms</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Ping Results -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-semibold text-gray-900">Recent Ping Results</h3>
+    </div>
+    
+    <% if @monitored_url.ping_results.any? %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Response Time</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Code</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @monitored_url.ping_results.order(created_at: :desc).limit(20).each do |ping| %>
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <%= ping.created_at.strftime("%b %d, %Y %H:%M:%S") %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if ping.status_code == 200 %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <i class="fas fa-check-circle mr-1"></i>Success
+                    </span>
+                  <% else %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                      <i class="fas fa-times-circle mr-1"></i>Failed
+                    </span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <%= ping.response_time&.round(0) || 0 %>ms
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <%= ping.status_code %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="text-center py-12">
+        <div class="mx-auto h-16 w-16 text-gray-300">
+          <i class="fas fa-chart-line text-4xl"></i>
+        </div>
+        <h3 class="mt-4 text-lg font-medium text-gray-900">No ping results yet</h3>
+        <p class="mt-2 text-gray-500">Ping results will appear here once monitoring begins.</p>
+      </div>
+    <% end %>
+  </div>
+</div>

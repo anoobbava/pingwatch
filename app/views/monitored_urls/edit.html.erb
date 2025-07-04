@@ -1,0 +1,24 @@
+<% content_for :title, "Editing monitored url" %>
+
+<!-- Page Header -->
+<div class="mb-8">
+  <div class="flex items-center space-x-4">
+    <%= link_to monitored_urls_path, class: "text-gray-400 hover:text-gray-600 transition-colors" do %>
+      <i class="fas fa-arrow-left text-xl"></i>
+    <% end %>
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Edit URL</h1>
+      <p class="mt-2 text-gray-600">Update your URL monitoring settings</p>
+    </div>
+  </div>
+</div>
+
+<!-- Form Card -->
+<div class="max-w-2xl">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+    <%= render "form", monitored_url: @monitored_url %>
+  </div>
+</div>
+
+<%= link_to "Show this monitored url", @monitored_url, class: "w-full sm:w-auto text-center mt-2 sm:mt-0 sm:ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
+<%= link_to "Back to monitored urls", monitored_urls_path, class: "w-full sm:w-auto text-center mt-2 sm:mt-0 sm:ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>

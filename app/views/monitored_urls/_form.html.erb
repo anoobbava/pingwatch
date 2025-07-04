@@ -1,0 +1,68 @@
+<%= form_with(model: monitored_url, class: "space-y-6") do |form| %>
+  <% if monitored_url.errors.any? %>
+    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium">There were <%= pluralize(monitored_url.errors.count, "error") %> with your submission:</h3>
+          <div class="mt-2 text-sm">
+            <ul class="list-disc pl-5 space-y-1">
+              <% monitored_url.errors.each do |error| %>
+                <li><%= error.full_message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :name, class: "block text-sm font-medium text-gray-700 mb-2" do %>
+      <i class="fas fa-tag mr-2 text-gray-400"></i>Display Name
+    <% end %>
+    <%= form.text_field :name, 
+        placeholder: "e.g., My Website, Company Blog, API Endpoint",
+        class: ["block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors", 
+                {"border-red-300 focus:ring-red-500 focus:border-red-500": monitored_url.errors[:name].any?}] %>
+    <p class="mt-1 text-sm text-gray-500">Give your URL a friendly name for easy identification</p>
+  </div>
+
+  <div>
+    <%= form.label :url, class: "block text-sm font-medium text-gray-700 mb-2" do %>
+      <i class="fas fa-link mr-2 text-gray-400"></i>Website URL
+    <% end %>
+    <%= form.text_field :url, 
+        placeholder: "https://example.com",
+        class: ["block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors", 
+                {"border-red-300 focus:ring-red-500 focus:border-red-500": monitored_url.errors[:url].any?}] %>
+    <p class="mt-1 text-sm text-gray-500">Enter the full URL including http:// or https://</p>
+  </div>
+
+  <div class="flex items-center">
+    <div class="flex items-center h-5">
+      <%= form.check_box :active, 
+          class: ["h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-colors", 
+                  {"border-red-300": monitored_url.errors[:active].any?}] %>
+    </div>
+    <div class="ml-3">
+      <%= form.label :active, class: "text-sm font-medium text-gray-700" do %>
+        <i class="fas fa-toggle-on mr-2 text-gray-400"></i>Active Monitoring
+      <% end %>
+      <p class="text-sm text-gray-500">Enable continuous monitoring for this URL</p>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+    <%= link_to monitored_urls_path, class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors" do %>
+      <i class="fas fa-times mr-2"></i>Cancel
+    <% end %>
+    
+    <%= form.submit class: "inline-flex items-center px-6 py-2 border border-transparent rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors" do %>
+      <i class="fas fa-plus mr-2"></i>
+      <%= monitored_url.new_record? ? "Add URL" : "Update URL" %>
+    <% end %>
+  </div>
+<% end %>

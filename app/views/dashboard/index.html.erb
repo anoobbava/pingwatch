@@ -1,0 +1,274 @@
+<!-- Dashboard Header -->
+<div class="mb-8">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+      <p class="mt-2 text-gray-600">Monitor your URLs and track their performance in real-time</p>
+    </div>
+    <div class="mt-4 sm:mt-0">
+      <%= link_to new_monitored_url_path, class: "inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors" do %>
+        <i class="fas fa-plus mr-2"></i>
+        Add New URL
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+  <!-- Total URLs Card -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-shadow-hover">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+          <i class="fas fa-link text-blue-600 text-xl"></i>
+        </div>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-500">Total URLs</p>
+        <p class="text-2xl font-bold text-gray-900"><%= @monitored_urls.count %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active URLs Card -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-shadow-hover">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+          <i class="fas fa-check-circle text-green-600 text-xl"></i>
+        </div>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-500">Active URLs</p>
+        <p class="text-2xl font-bold text-gray-900">
+          <%= @monitored_urls.joins(:ping_results).where(ping_results: { status_code: 200 }).distinct.count %>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Average Uptime Card -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-shadow-hover">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+          <i class="fas fa-chart-line text-purple-600 text-xl"></i>
+        </div>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-500">Avg Uptime</p>
+        <p class="text-2xl font-bold text-gray-900">
+          <% 
+            total_pings = PingResult.joins(:monitored_url).where(monitored_urls: { user: current_user }).count
+            successful_pings = PingResult.joins(:monitored_url).where(monitored_urls: { user: current_user }, status_code: 200).count
+            avg_uptime = total_pings > 0 ? ((successful_pings.to_f / total_pings) * 100).round(1) : 0
+          %>
+          <%= avg_uptime %>%
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Average Response Time Card -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-shadow-hover">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+          <i class="fas fa-tachometer-alt text-orange-600 text-xl"></i>
+        </div>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-500">Avg Response</p>
+        <p class="text-2xl font-bold text-gray-900">
+          <% avg_response = PingResult.joins(:monitored_url).where(monitored_urls: { user: current_user }).average(:response_time)&.round(0) || 0 %>
+          <%= avg_response %>ms
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+  <h2 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <%= link_to new_monitored_url_path, class: "flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors" do %>
+      <div class="flex-shrink-0">
+        <i class="fas fa-plus text-blue-600 text-lg"></i>
+      </div>
+      <div class="ml-3">
+        <p class="text-sm font-medium text-blue-900">Add URL</p>
+        <p class="text-xs text-blue-700">Monitor a new website</p>
+      </div>
+    <% end %>
+
+    <%= link_to monitored_urls_path, class: "flex items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors" do %>
+      <div class="flex-shrink-0">
+        <i class="fas fa-list text-green-600 text-lg"></i>
+      </div>
+      <div class="ml-3">
+        <p class="text-sm font-medium text-green-900">View All URLs</p>
+        <p class="text-xs text-green-700">Manage your monitors</p>
+      </div>
+    <% end %>
+
+    <%= link_to metrics_path, class: "flex items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors" do %>
+      <div class="flex-shrink-0">
+        <i class="fas fa-chart-bar text-purple-600 text-lg"></i>
+      </div>
+      <div class="ml-3">
+        <p class="text-sm font-medium text-purple-900">View Metrics</p>
+        <p class="text-xs text-purple-700">Detailed analytics</p>
+      </div>
+    <% end %>
+
+    <%= link_to edit_user_registration_path, class: "flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors" do %>
+      <div class="flex-shrink-0">
+        <i class="fas fa-cog text-gray-600 text-lg"></i>
+      </div>
+      <div class="ml-3">
+        <p class="text-sm font-medium text-gray-900">Settings</p>
+        <p class="text-xs text-gray-700">Account preferences</p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-semibold text-gray-900">Recent Activity</h2>
+    <%= link_to monitored_urls_path, class: "text-sm text-blue-600 hover:text-blue-700 font-medium" do %>
+      View All <i class="fas fa-arrow-right ml-1"></i>
+    <% end %>
+  </div>
+  
+  <% if @monitored_urls.any? %>
+    <div class="overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URL Name</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Uptime</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Response Time</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Check</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @monitored_urls.limit(5).each do |url| %>
+            <% 
+              total = url.ping_results.count
+              up = url.ping_results.where(status_code: 200).count
+              uptime = total > 0 ? ((up.to_f / total) * 100).round(1) : 0
+              last_ping = url.ping_results.order(created_at: :desc).first
+              avg_response = url.ping_results.average(:response_time)&.round(0) || 0
+            %>
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10">
+                    <div class="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                      <i class="fas fa-link text-blue-600"></i>
+                    </div>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900"><%= url.name %></div>
+                    <div class="text-sm text-gray-500 truncate max-w-xs"><%= url.url %></div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <% if last_ping&.status_code == 200 %>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <i class="fas fa-check-circle mr-1"></i>Online
+                  </span>
+                <% else %>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    <i class="fas fa-times-circle mr-1"></i>Offline
+                  </span>
+                <% end %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <div class="flex items-center">
+                  <span class="font-medium"><%= uptime %>%</span>
+                  <div class="ml-2 flex-1 bg-gray-200 rounded-full h-2 w-16">
+                    <div class="bg-blue-600 h-2 rounded-full" style="width: <%= uptime %>%"></div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <span class="font-medium"><%= avg_response %>ms</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <% if last_ping %>
+                  <%= time_ago_in_words(last_ping.created_at) %> ago
+                <% else %>
+                  Never
+                <% end %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <div class="flex space-x-2">
+                  <%= link_to monitored_url_path(url), class: "text-blue-600 hover:text-blue-900" do %>
+                    <i class="fas fa-eye"></i>
+                  <% end %>
+                  <%= link_to edit_monitored_url_path(url), class: "text-yellow-600 hover:text-yellow-900" do %>
+                    <i class="fas fa-edit"></i>
+                  <% end %>
+                  <%= link_to monitored_url_path(url), method: :delete, data: { confirm: 'Are you sure you want to delete this URL?' }, class: "text-red-600 hover:text-red-900" do %>
+                    <i class="fas fa-trash"></i>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <!-- Empty State -->
+    <div class="text-center py-12">
+      <div class="mx-auto h-24 w-24 text-gray-300">
+        <i class="fas fa-link text-6xl"></i>
+      </div>
+      <h3 class="mt-4 text-lg font-medium text-gray-900">No URLs monitored yet</h3>
+      <p class="mt-2 text-gray-500">Get started by adding your first URL to monitor.</p>
+      <div class="mt-6">
+        <%= link_to new_monitored_url_path, class: "inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors" do %>
+          <i class="fas fa-plus mr-2"></i>
+          Add Your First URL
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<!-- How It Works -->
+<div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6">
+  <h2 class="text-lg font-semibold text-gray-900 mb-4">How PingWatch Works</h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="text-center">
+      <div class="mx-auto h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center mb-3">
+        <i class="fas fa-plus text-blue-600 text-xl"></i>
+      </div>
+      <h3 class="text-sm font-medium text-gray-900 mb-2">1. Add URLs</h3>
+      <p class="text-xs text-gray-600">Add the websites you want to monitor by entering their URLs</p>
+    </div>
+    <div class="text-center">
+      <div class="mx-auto h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center mb-3">
+        <i class="fas fa-chart-line text-green-600 text-xl"></i>
+      </div>
+      <h3 class="text-sm font-medium text-gray-900 mb-2">2. Automatic Monitoring</h3>
+      <p class="text-xs text-gray-600">We continuously check your URLs and track their performance</p>
+    </div>
+    <div class="text-center">
+      <div class="mx-auto h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center mb-3">
+        <i class="fas fa-bell text-purple-600 text-xl"></i>
+      </div>
+      <h3 class="text-sm font-medium text-gray-900 mb-2">3. Get Insights</h3>
+      <p class="text-xs text-gray-600">View uptime statistics, response times, and detailed metrics</p>
+    </div>
+  </div>
+</div>

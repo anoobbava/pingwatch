@@ -1,0 +1,110 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8">
+    <!-- Logo and Header -->
+    <div class="text-center">
+      <div class="mx-auto h-16 w-16 bg-blue-600 rounded-xl flex items-center justify-center mb-4">
+        <i class="fas fa-chart-line text-white text-2xl"></i>
+      </div>
+      <h2 class="text-3xl font-bold text-gray-900">Welcome back</h2>
+      <p class="mt-2 text-sm text-gray-600">Sign in to your PingWatch account</p>
+    </div>
+
+    <!-- Login Form -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+      <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "space-y-6" }) do |f| %>
+        <% if notice %>
+          <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm"><%= notice %></p>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <% if alert %>
+          <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-circle"></i>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm"><%= alert %></p>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <div>
+          <%= f.label :email, class: "block text-sm font-medium text-gray-700 mb-2" do %>
+            <i class="fas fa-envelope mr-2 text-gray-400"></i>Email Address
+          <% end %>
+          <%= f.email_field :email, 
+              autofocus: true, 
+              autocomplete: "email",
+              placeholder: "Enter your email",
+              class: "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" %>
+        </div>
+
+        <div>
+          <%= f.label :password, class: "block text-sm font-medium text-gray-700 mb-2" do %>
+            <i class="fas fa-lock mr-2 text-gray-400"></i>Password
+          <% end %>
+          <%= f.password_field :password, 
+              autocomplete: "current-password",
+              placeholder: "Enter your password",
+              class: "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" %>
+        </div>
+
+        <% if devise_mapping.rememberable? %>
+          <div class="flex items-center">
+            <div class="flex items-center h-5">
+              <%= f.check_box :remember_me, class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-colors" %>
+            </div>
+            <div class="ml-3">
+              <%= f.label :remember_me, class: "text-sm text-gray-700" do %>
+                Remember me
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <div>
+          <%= f.submit "Sign In", class: "w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors" %>
+        </div>
+      <% end %>
+
+      <!-- Links -->
+      <div class="mt-6">
+        <div class="relative">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-gray-300"></div>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="px-2 bg-white text-gray-500">Or</span>
+          </div>
+        </div>
+
+        <div class="mt-6 space-y-3">
+          <%= link_to new_password_path(resource_name), class: "w-full flex justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors" do %>
+            <i class="fas fa-key mr-2"></i>Forgot your password?
+          <% end %>
+          
+          <%= link_to new_registration_path(resource_name), class: "w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors" do %>
+            <i class="fas fa-user-plus mr-2"></i>Create new account
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center">
+      <p class="text-xs text-gray-500">
+        © 2024 PingWatch. Professional URL monitoring service.
+      </p>
+    </div>
+  </div>
+</div>

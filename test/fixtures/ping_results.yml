@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  monitored_url: one
+  status_code: 1
+  response_time: 1.5
+  error_message: MyString
+
+two:
+  monitored_url: two
+  status_code: 1
+  response_time: 1.5
+  error_message: MyString

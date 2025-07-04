@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: abc123
+      POSTGRES_DB: pingwatch_production
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  web:
+    build: .
+    command: bundle exec rails server -b 0.0.0.0
+    volumes:
+      - .:/rails
+    ports:
+      - "3000:3000"
+    environment:
+      RAILS_ENV: production
+      DATABASE_URL: postgres://postgres:abc123@db:5432/pingwatch_production
+      REDIS_URL: redis://redis:6379/1
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+    depends_on:
+      - db
+      - redis
+
+  sidekiq:
+    build: .
+    command: bundle exec sidekiq
+    volumes:
+      - .:/rails
+    environment:
+      RAILS_ENV: production
+      DATABASE_URL: postgres://postgres:abc123@db:5432/pingwatch_production
+      REDIS_URL: redis://redis:6379/1
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+    depends_on:
+      - db
+      - redis
+
+volumes:
+  db_data: 

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>PingWatch - URL Monitoring Dashboard</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="Professional URL monitoring and uptime tracking service">
+    <meta name="theme-color" content="#3b82f6">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+    
+    <style>
+      body { font-family: 'Inter', sans-serif; }
+      .glass-effect { backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.9); }
+      .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+      .card-shadow-hover { transition: all 0.3s ease; }
+      .card-shadow-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+    </style>
+  </head>
+
+  <body class="bg-gray-50 min-h-screen overflow-x-hidden">
+    <% if user_signed_in? %>
+      <!-- Navigation Bar -->
+      <nav class="glass-effect border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center h-16">
+            <!-- Logo and Brand -->
+            <div class="flex items-center space-x-3">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <i class="fas fa-chart-line text-white text-sm"></i>
+                </div>
+              </div>
+              <div class="hidden md:block">
+                <h1 class="text-xl font-semibold text-gray-900">PingWatch</h1>
+                <p class="text-xs text-gray-500">URL Monitoring Dashboard</p>
+              </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <div class="hidden md:flex items-center space-x-8">
+              <%= link_to dashboard_path, class: "text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors #{current_page?(dashboard_path) ? 'bg-blue-50 text-blue-600' : ''}" do %>
+                <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+              <% end %>
+              <%= link_to monitored_urls_path, class: "text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors #{controller_name == 'monitored_urls' ? 'bg-blue-50 text-blue-600' : ''}" do %>
+                <i class="fas fa-link mr-2"></i>URLs
+              <% end %>
+              <%= link_to metrics_path, class: "text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors #{controller_name == 'metrics' ? 'bg-blue-50 text-blue-600' : ''}" do %>
+                <i class="fas fa-chart-bar mr-2"></i>Metrics
+              <% end %>
+            </div>
+
+            <!-- User Menu -->
+            <div class="flex items-center space-x-4">
+              <div class="relative">
+                <button class="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors">
+                  <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user text-blue-600 text-sm"></i>
+                  </div>
+                  <span class="hidden md:block text-sm font-medium"><%= current_user.email %></span>
+                  <i class="fas fa-chevron-down text-xs"></i>
+                </button>
+                <!-- Dropdown Menu -->
+                <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden group-hover:block">
+                  <%= link_to edit_user_registration_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
+                    <i class="fas fa-cog mr-2"></i>Settings
+                  <% end %>
+                  <%= link_to destroy_user_session_path, method: :delete, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
+                    <i class="fas fa-sign-out-alt mr-2"></i>Sign Out
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Mobile Navigation -->
+      <div class="md:hidden">
+        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-b border-gray-200">
+          <%= link_to dashboard_path, class: "block px-3 py-2 rounded-md text-base font-medium #{current_page?(dashboard_path) ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:text-blue-600'}" do %>
+            <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+          <% end %>
+          <%= link_to monitored_urls_path, class: "block px-3 py-2 rounded-md text-base font-medium #{controller_name == 'monitored_urls' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:text-blue-600'}" do %>
+            <i class="fas fa-link mr-2"></i>URLs
+          <% end %>
+          <%= link_to metrics_path, class: "block px-3 py-2 rounded-md text-base font-medium #{controller_name == 'metrics' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:text-blue-600'}" do %>
+            <i class="fas fa-chart-bar mr-2"></i>Metrics
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Main Content -->
+    <main class="<%= user_signed_in? ? 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8' : '' %>">
+      <% if notice %>
+        <div class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm"><%= notice %></p>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <% if alert %>
+        <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm"><%= alert %></p>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <%= yield %>
+    </main>
+
+    <!-- Footer -->
+    <% if user_signed_in? %>
+      <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center">
+            <p class="text-sm text-gray-500">© 2024 PingWatch. Professional URL monitoring service.</p>
+            <div class="flex space-x-4 text-sm text-gray-500">
+              <a href="#" class="hover:text-blue-600">Privacy</a>
+              <a href="#" class="hover:text-blue-600">Terms</a>
+              <a href="#" class="hover:text-blue-600">Support</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    <% end %>
+  </body>
+</html>
