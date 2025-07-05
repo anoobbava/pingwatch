@@ -143,15 +143,15 @@
       </div>
       <div class="text-center">
         <% 
-          total_pings = PingResult.joins(:monitored_url).where(monitored_urls: { user: current_user }).count
-          successful_pings = PingResult.joins(:monitored_url).where(monitored_urls: { user: current_user }, status_code: 200).count
+          total_pings = PingResult.joins(:monitored_url).count
+          successful_pings = PingResult.joins(:monitored_url).where(status_code: 200).count
           avg_uptime = total_pings > 0 ? ((successful_pings.to_f / total_pings) * 100).round(1) : 0
         %>
         <p class="text-2xl font-bold text-purple-600"><%= avg_uptime %>%</p>
         <p class="text-sm text-gray-500">Average Uptime</p>
       </div>
       <div class="text-center">
-        <% avg_response = PingResult.joins(:monitored_url).where(monitored_urls: { user: current_user }).average(:response_time)&.round(0) || 0 %>
+        <% avg_response = PingResult.joins(:monitored_url).average(:response_time)&.round(0) || 0 %>
         <p class="text-2xl font-bold text-orange-600"><%= avg_response %>ms</p>
         <p class="text-sm text-gray-500">Avg Response Time</p>
       </div>

@@ -2,7 +2,6 @@ require 'sidekiq/web'
 
 Rails.application.routes.draw do
   get 'dashboard/index'
-  devise_for :users
   resources :monitored_urls
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -10,21 +9,16 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
 
-  authenticated :user do
-    root to: 'dashboard#index', as: :authenticated_root
-  end
-  unauthenticated do
-    root to: 'welcome#index', as: :unauthenticated_root
-  end
+  # Root route - no authentication needed
+  root to: 'dashboard#index'
 
   get '/dashboard', to: 'dashboard#index', as: :dashboard
 
-  authenticate :user, lambda { |u| u.admin? rescue false } do
-    mount Sidekiq::Web => '/sidekiq'
-  end
+  # Sidekiq web interface - accessible without authentication
+  mount Sidekiq::Web => '/sidekiq'
 
   get '/metrics', to: 'metrics#index'
-  mount HealthCheck::Engine, at: "/healthcheck"
+  # mount HealthCheck::Engine, at: "/healthcheck"
 
   # Defines the root path route ("/")
   # root "posts#index"

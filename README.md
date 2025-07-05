@@ -26,7 +26,7 @@ Things you may want to cover:
 # PingWatch
 
 ## Features
-- User sign up/login (Devise)
+- Simple URL monitoring without authentication
 - Add and monitor public URLs
 - Pings every 5 minutes (Sidekiq)
 - Dashboard with uptime, last status, avg response time

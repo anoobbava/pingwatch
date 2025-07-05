@@ -1,10 +1,9 @@
 class MonitoredUrlsController < ApplicationController
-  before_action :authenticate_user!
   before_action :set_monitored_url, only: %i[ show edit update destroy ]
 
   # GET /monitored_urls or /monitored_urls.json
   def index
-    @monitored_urls = current_user.monitored_urls
+    @monitored_urls = MonitoredUrl.all
   end
 
   # GET /monitored_urls/1 or /monitored_urls/1.json
@@ -13,7 +12,7 @@ class MonitoredUrlsController < ApplicationController
 
   # GET /monitored_urls/new
   def new
-    @monitored_url = current_user.monitored_urls.new
+    @monitored_url = MonitoredUrl.new
   end
 
   # GET /monitored_urls/1/edit
@@ -22,7 +21,7 @@ class MonitoredUrlsController < ApplicationController
 
   # POST /monitored_urls or /monitored_urls.json
   def create
-    @monitored_url = current_user.monitored_urls.new(monitored_url_params)
+    @monitored_url = MonitoredUrl.new(monitored_url_params)
 
     respond_to do |format|
       if @monitored_url.save
@@ -61,7 +60,7 @@ class MonitoredUrlsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_monitored_url
-      @monitored_url = current_user.monitored_urls.find(params[:id])
+      @monitored_url = MonitoredUrl.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.

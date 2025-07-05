@@ -81,7 +81,6 @@ GEM
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
     base64 (0.3.0)
-    bcrypt (3.1.20)
     benchmark (0.4.1)
     bigdecimal (3.2.2)
     bindex (0.8.1)
@@ -106,12 +105,6 @@ GEM
     debug (1.11.0)
       irb (~> 1.10)
       reline (>= 0.3.8)
-    devise (4.9.4)
-      bcrypt (~> 3.0)
-      orm_adapter (~> 0.1)
-      railties (>= 4.1.0)
-      responders
-      warden (~> 1.2.3)
     drb (2.2.3)
     erb (4.0.4)
       cgi (>= 0.3.3)
@@ -166,7 +159,6 @@ GEM
     nio4r (2.7.4)
     nokogiri (1.17.2-x86_64-linux)
       racc (~> 1.4)
-    orm_adapter (0.5.0)
     pg (1.5.9)
     pp (0.6.2)
       prettyprint
@@ -228,9 +220,6 @@ GEM
     regexp_parser (2.10.0)
     reline (0.6.1)
       io-console (~> 0.5)
-    responders (3.1.1)
-      actionpack (>= 5.2)
-      railties (>= 5.2)
     rexml (3.4.1)
     rubyzip (2.4.1)
     securerandom (0.3.2)
@@ -268,8 +257,6 @@ GEM
       railties (>= 6.0.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
-    warden (1.2.9)
-      rack (>= 2.0.9)
     web-console (4.2.1)
       actionview (>= 6.0.0)
       activemodel (>= 6.0.0)
@@ -291,7 +278,6 @@ DEPENDENCIES
   bootsnap
   capybara
   debug
-  devise
   health_check
   httparty
   importmap-rails
