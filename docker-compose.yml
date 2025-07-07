@@ -5,17 +5,17 @@ services:
     image: postgres:14
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: abc123
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: pingwatch_production
     volumes:
       - db_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "15432:5432"
 
   redis:
     image: redis:7
     ports:
-      - "6379:6379"
+      - "16379:6379"
 
   web:
     build: .
@@ -23,10 +23,14 @@ services:
     volumes:
       - .:/rails
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
       RAILS_ENV: production
-      DATABASE_URL: postgres://postgres:abc123@db:5432/pingwatch_production
+      PINGWATCH_DATABASE_NAME: ${DATABASE_NAME}
+      PINGWATCH_DATABASE_USERNAME: ${POSTGRES_USERNAME}
+      PINGWATCH_DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      PINGWATCH_DATABASE_HOST: db
+      PINGWATCH_DATABASE_PORT: 5432
       REDIS_URL: redis://redis:6379/1
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
     depends_on:
@@ -40,7 +44,11 @@ services:
       - .:/rails
     environment:
       RAILS_ENV: production
-      DATABASE_URL: postgres://postgres:abc123@db:5432/pingwatch_production
+      PINGWATCH_DATABASE_NAME: ${DATABASE_NAME}
+      PINGWATCH_DATABASE_USERNAME: ${POSTGRES_USERNAME}
+      PINGWATCH_DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      PINGWATCH_DATABASE_HOST: db
+      PINGWATCH_DATABASE_PORT: 5432
       REDIS_URL: redis://redis:6379/1
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
     depends_on:
