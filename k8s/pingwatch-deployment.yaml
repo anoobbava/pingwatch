@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pingwatch
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pingwatch
+  template:
+    metadata:
+      labels:
+        app: pingwatch
+    spec:
+      initContainers:
+        - name: migrate
+          image: pingwatch:prod
+          command: ["bin/rails", "db:migrate"]
+          envFrom:
+            - configMapRef:
+                name: pingwatch-config
+            - secretRef:
+                name: pingwatch-secret
+      containers:
+        - name: web
+          image: pingwatch:prod
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: pingwatch-config
+            - secretRef:
+                name: pingwatch-secret
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+

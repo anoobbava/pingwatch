@@ -1,0 +1,8 @@
+# k8s/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pingwatch-config
+data:
+  RAILS_ENV: "production"
+  REDIS_URL: "redis://redis:6379/0"

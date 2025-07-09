@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sidekiq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sidekiq
+  template:
+    metadata:
+      labels:
+        app: sidekiq
+    spec:
+      containers:
+        - name: sidekiq
+          image: pingwatch:prod
+          command: ["bundle", "exec", "sidekiq"]
+          envFrom:
+            - configMapRef:
+                name: pingwatch-config
+            - secretRef:
+                name: pingwatch-secret

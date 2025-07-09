@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: pingwatch-cron
+spec:
+  schedule: "*/1 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: pingwatch-cron
+              image: pingwatch:prod
+              command: ["bin/rails", "pingwatch:ping_all"]
+              envFrom:
+                - configMapRef:
+                    name: pingwatch-config
+                - secretRef:
+                    name: pingwatch-secret
+          restartPolicy: OnFailure
