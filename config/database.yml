@@ -21,10 +21,11 @@ default: &default
 
 development:
   <<: *default
-  database: pingwatch_development
-  username: postgres
-  password: abc123
-  host: localhost
+  database: <%= ENV["PINGWATCH_DATABASE_NAME"] || "pingwatch_development" %>
+  username: <%= ENV["PINGWATCH_DATABASE_USERNAME"] || "postgres" %>
+  password: <%= ENV["PINGWATCH_DATABASE_PASSWORD"] || "abc123" %>
+  host: <%= ENV["PINGWATCH_DATABASE_HOST"] || "localhost" %>
+  port: <%= ENV["PINGWATCH_DATABASE_PORT"] || 5432 %>
 
   # The password associated with the PostgreSQL role (username).
   #password:
