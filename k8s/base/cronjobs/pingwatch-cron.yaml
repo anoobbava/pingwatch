@@ -18,4 +18,4 @@ spec:
                     name: pingwatch-config
                 - secretRef:
                     name: pingwatch-secret
-          restartPolicy: OnFailure
+          restartPolicy: OnFailure 

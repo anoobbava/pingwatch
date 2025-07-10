@@ -20,4 +20,4 @@ spec:
             - configMapRef:
                 name: pingwatch-config
             - secretRef:
-                name: pingwatch-secret
+                name: pingwatch-secret 
