@@ -60,6 +60,9 @@ gem "httparty"
 
 # Prometheus metrics
 gem "prometheus-client"
+# Gemfile
+gem 'prometheus_exporter', '>= 2.0'
+
 
 # Health checks
 gem "health_check"

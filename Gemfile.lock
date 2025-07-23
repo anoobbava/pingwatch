@@ -165,6 +165,8 @@ GEM
     prettyprint (0.2.0)
     prometheus-client (4.2.4)
       base64
+    prometheus_exporter (2.2.0)
+      webrick
     psych (5.2.6)
       date
       stringio
@@ -262,6 +264,7 @@ GEM
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
+    webrick (1.9.1)
     websocket (1.2.11)
     websocket-driver (0.8.0)
       base64
@@ -284,6 +287,7 @@ DEPENDENCIES
   jbuilder
   pg (~> 1.1)
   prometheus-client
+  prometheus_exporter (>= 2.0)
   puma (>= 5.0)
   rails (~> 7.1.5, >= 7.1.5.1)
   redis (>= 4.0.1)
