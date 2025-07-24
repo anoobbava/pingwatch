@@ -7,4 +7,6 @@ data:
   REDIS_URL: "redis://redis:6379/0"
   PROMETHEUS_EXPORTER_HOST: "prometheus-exporter"
   PROMETHEUS_EXPORTER_PORT: "9394"
+  GF_SECURITY_ADMIN_PASSWORD: "admin123"
+  GF_SECURITY_ADMIN_USER: "admin"
   
