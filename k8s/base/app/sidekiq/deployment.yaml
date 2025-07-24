@@ -16,8 +16,10 @@ spec:
         - name: sidekiq
           image: pingwatch:prod
           command: ["bundle", "exec", "sidekiq"]
+          ports:
+            - containerPort: 3000
           envFrom:
             - configMapRef:
                 name: pingwatch-config
             - secretRef:
-                name: pingwatch-secret 
+                name: pingwatch-secret

@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-exporter
+  template:
+    metadata:
+      labels:
+        app: prometheus-exporter
+    spec:
+      containers:
+        - name: prometheus-exporter
+          image: pingwatch:prod
+          command: ["bundle", "exec", "prometheus_exporter", "--port", "9394", "--bind", "0.0.0.0"]
+          ports:
+            - containerPort: 9394
+          envFrom:
+            - configMapRef:
+                name: pingwatch-config
+            - secretRef:
+                name: pingwatch-secret
+                

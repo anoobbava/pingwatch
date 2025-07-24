@@ -1,29 +1,6 @@
-# README
-
-This README would normally document whatever steps are necessary to get the
-application up and running.
-
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
-
 # PingWatch
+
+A simple URL monitoring application built with Ruby on Rails, featuring Prometheus metrics and Kubernetes deployment.
 
 ## Features
 - Simple URL monitoring without authentication
@@ -31,245 +8,542 @@ Things you may want to cover:
 - Pings every 5 minutes (Sidekiq)
 - Dashboard with uptime, last status, avg response time
 - Prometheus /metrics endpoint
-- Healthcheck at /healthcheck
-- Docker & K8s ready
+- Healthcheck at /health
+- Kubernetes ready with minikube
 
-## Environment Variables
+## Prerequisites
 
-The application requires the following environment variables to be set:
+### System Dependencies
+- Ruby 3.0.6
+- PostgreSQL
+- Redis
+- Node.js (for asset compilation)
+- Docker (for building container images)
+- kubectl
+- minikube
 
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `SECRET_KEY_BASE` | Rails secret key for session encryption | Yes | - |
-| `POSTGRES_PASSWORD` | PostgreSQL database password | Yes | - |
-| `POSTGRES_USERNAME` | PostgreSQL database username | Yes | `postgres` |
-| `DATABASE_NAME` | PostgreSQL database name | Yes | `pingwatch_production` |
+### Install Dependencies
 
-### Security Notes
-- Never commit your `.env` file to version control (it's already in `.gitignore`)
-- Use strong, unique passwords for production environments
-- Consider using a secrets management service for production deployments
+#### Ubuntu/Debian
+```bash
+# Install Ruby dependencies
+sudo apt update
+sudo apt install -y ruby ruby-dev ruby-bundler build-essential libpq-dev
 
-## Running Locally with Docker Compose
+# Install PostgreSQL
+sudo apt install -y postgresql postgresql-contrib
 
-1. **Set up environment variables:**
-   ```sh
-   # Create a .env file with required environment variables
-   cat > .env << EOF
-   # Rails secret key base (required for session encryption)
-   SECRET_KEY_BASE=$(openssl rand -hex 64)
-   
-   # PostgreSQL database configuration
-   POSTGRES_USERNAME=postgres
-   POSTGRES_PASSWORD=your_secure_password_here
-   DATABASE_NAME=pingwatch_production
-   EOF
-   ```
+# Install Redis
+sudo apt install -y redis-server
 
-2. **Build and start all services:**
-   ```sh
-   docker-compose up --build
-   ```
+# Install Node.js
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
 
-3. **Run database migrations:**
-   ```sh
-   docker-compose run --rm web bundle exec rails db:migrate
-   ```
+# Install Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
 
-4. **(Optional) Seed the database:**
-   ```sh
-   docker-compose run --rm web bundle exec rails db:seed
-   ```
+# Install kubectl
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
-5. **Visit [http://localhost:3001](http://localhost:3001)**
-
-## Docker Commands
-
-### Starting Services
-```sh
-# Start all services in background
-docker-compose up -d
-
-# Start all services with logs
-docker-compose up
-
-# Start specific service
-docker-compose up -d web
-docker-compose up -d db redis
+# Install minikube
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
 ```
 
-### Stopping Services
-```sh
-# Stop all services
-docker-compose down
+#### macOS
+```bash
+# Install Homebrew if not installed
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-# Stop and remove volumes (WARNING: This will delete all data)
-docker-compose down -v
-
-# Stop specific service
-docker-compose stop web
-docker-compose stop sidekiq
+# Install dependencies
+brew install ruby postgresql redis node docker kubectl minikube
 ```
 
-### Viewing Logs
-```sh
-# View all logs
-docker-compose logs
+## Local Development Setup
 
-# View logs for specific service
-docker-compose logs web
-docker-compose logs sidekiq
-docker-compose logs db
-docker-compose logs redis
-
-# Follow logs in real-time
-docker-compose logs -f web
-docker-compose logs -f sidekiq
-
-# View last N lines
-docker-compose logs --tail=50 web
+### 1. Clone and Setup
+```bash
+git clone <repository-url>
+cd pingwatch
+bundle install
 ```
 
-### Container Management
-```sh
-# Check container status
-docker-compose ps
+### 2. Database Setup
+```bash
+# Start PostgreSQL and Redis
+sudo systemctl start postgresql
+sudo systemctl start redis
 
-# Restart services
-docker-compose restart
-docker-compose restart web
-docker-compose restart sidekiq
+# Create database
+sudo -u postgres createdb pingwatch_development
+sudo -u postgres createdb pingwatch_test
 
-# Rebuild and restart
-docker-compose up --build -d
+# Run migrations
+bin/rails db:migrate
+bin/rails db:seed
+```
 
-# Execute commands in running containers
-docker-compose exec web bundle exec rails console
-docker-compose exec db psql -U postgres -d pingwatch_production
-docker-compose exec redis redis-cli
+### 3. Environment Configuration
+```bash
+# Generate secret key
+SECRET_KEY_BASE=$(openssl rand -hex 64)
+
+# Set environment variables
+export SECRET_KEY_BASE=$SECRET_KEY_BASE
+export DATABASE_URL="postgresql://postgres@localhost/pingwatch_development"
+export REDIS_URL="redis://localhost:6379/0"
+```
+
+### 4. Start Services
+```bash
+# Start Rails server
+bin/rails server
+
+# In another terminal, start Sidekiq
+bundle exec sidekiq
+
+# In another terminal, start Tailwind CSS watcher
+bin/rails tailwindcss:watch
+```
+
+### 5. Access Application
+- Main app: http://localhost:3000
+- Health check: http://localhost:3000/health
+- Metrics: http://localhost:3000/metrics
+
+## Kubernetes Deployment with Minikube
+
+### 1. Start Minikube
+```bash
+# Start minikube with sufficient resources
+minikube start --driver=docker
+
+# Enable addons
+minikube addons enable ingress
+minikube addons enable metrics-server
+
+# Verify cluster is running
+kubectl cluster-info
+kubectl get nodes
+```
+
+### 2. Build and Load Docker Image
+```bash
+# Build the application image locally
+docker build -t pingwatch:prod .
+
+# Load image into minikube (for offline/limited connectivity scenarios)
+minikube image load pingwatch:prod
+
+# Alternative: If you have internet access, you can push to a registry
+# docker tag pingwatch:prod your-registry/pingwatch:prod
+# docker push your-registry/pingwatch:prod
+
+# Verify image is available in minikube
+minikube image ls | grep pingwatch
+```
+
+### 3. Deploy Application
+```bash
+
+kubectl apply -f k8s/base/ --recursive
+
+
+OR one thing at a time
+# Apply all Kubernetes resources
+kubectl apply -f k8s/base/configmap.yaml
+kubectl apply -f k8s/base/secrets.yaml
+kubectl apply -f k8s/base/app/deployment.yaml
+kubectl apply -f k8s/base/app/service.yaml
+kubectl apply -f k8s/base/postgres/deployment.yaml
+kubectl apply -f k8s/base/postgres/service.yaml
+kubectl apply -f k8s/base/postgres/pvc.yaml
+kubectl apply -f k8s/base/redis/deployment.yaml
+kubectl apply -f k8s/base/redis/service.yaml
+kubectl apply -f k8s/base/app/sidekiq-deployment.yaml
+kubectl apply -f k8s/base/cronjobs/pingwatch-cron.yaml
+```
+
+### 4. Deploy Prometheus (Optional)
+```bash
+# Deploy Prometheus for monitoring
+kubectl apply -f k8s/base/prometheus-config.yaml
+kubectl apply -f k8s/base/prometheus-deployment.yaml
+kubectl apply -f k8s/base/prometheus-service.yaml
+```
+
+### 5. Access the Application
+
+#### Option A: Using NodePort (Recommended for Development)
+```bash
+# Apply the updated service with NodePort
+kubectl apply -f k8s/base/app/service.yaml
+
+# Get minikube IP
+minikube ip
+
+# Access the application directly
+# Replace <minikube-ip> with the actual IP from minikube ip
+curl http://<minikube-ip>:30080
+# Or open in browser: http://<minikube-ip>:30080
+
+# Access metrics
+curl http://<minikube-ip>:30394/metrics
+```
+
+#### Option B: Using minikube service (with tunnel)
+```bash
+# This will create a tunnel and show you the local URLs
+minikube service pingwatch
+
+# Keep the terminal open - the tunnel will stay active
+# Access via the provided URLs (e.g., http://127.0.0.1:41423)
+# Press Ctrl+C to stop the tunnel when done
+```
+
+
+
+#### Option C: Using Port Forward (Simple but temporary)
+```bash
+# Port forward to access the application
+kubectl port-forward service/pingwatch 3000:3000
+
+# Access the application
+curl http://localhost:3000
+# Or open in browser: http://localhost:3000
+
+# Keep terminal open - Ctrl+C to stop
+```
+
+
+### 6. Cleanup and Delete Services
+```bash
+# Delete all application resources
+kubectl delete all,secrets,configmaps,pvc,pv,cronjobs --all
+
+
+# Stop minikube completely
+minikube stop
+minikube delete
+```
+
+## Kubernetes Commands
+
+### Pod Management
+```bash
+# Check pod status
+kubectl get pods
+kubectl get pods -o wide
+
+# View pod logs
+kubectl logs -f deployment/pingwatch
+kubectl logs -f deployment/sidekiq
+kubectl logs -f deployment/postgres
+
+# Execute commands in pods
+kubectl exec -it deployment/pingwatch -- bin/rails console
+kubectl exec -it deployment/postgres -- psql -U postgres -d pingwatch_production
+```
+
+### Service Management
+```bash
+# Check services
+kubectl get services
+kubectl get endpoints
+
+# Port forwarding
+kubectl port-forward service/pingwatch 3000:3000
+kubectl port-forward service/prometheus 9090:9090
+```
+
+### Deployment Management
+```bash
+# Check deployments
+kubectl get deployments
+kubectl describe deployment pingwatch
+
+# Scale deployments
+kubectl scale deployment pingwatch --replicas=2
+kubectl scale deployment sidekiq --replicas=3
+
+# Update deployment
+kubectl set image deployment/pingwatch pingwatch=pingwatch:latest
+kubectl rollout status deployment/pingwatch
 ```
 
 ### Database Operations
-```sh
+```bash
 # Run migrations
-docker-compose run --rm web bundle exec rails db:migrate
+kubectl exec -it deployment/pingwatch -- bin/rails db:migrate
 
 # Reset database
-docker-compose run --rm web bundle exec rails db:drop db:create db:migrate
+kubectl exec -it deployment/pingwatch -- bin/rails db:drop db:create db:migrate
 
 # Seed database
-docker-compose run --rm web bundle exec rails db:seed
+kubectl exec -it deployment/pingwatch -- bin/rails db:seed
 
 # Access Rails console
-docker-compose run --rm web bundle exec rails console
+kubectl exec -it deployment/pingwatch -- bin/rails console
 ```
 
 ### Monitoring and Debugging
-```sh
+```bash
 # Check resource usage
-docker stats
+kubectl top pods
+kubectl top nodes
 
-# View container details
-docker-compose ps
-docker inspect pingwatch_web_1
+# View events
+kubectl get events --sort-by='.lastTimestamp'
 
-# Access container shell
-docker-compose exec web bash
-docker-compose exec sidekiq bash
+# Check persistent volumes
+kubectl get pv,pvc
+
+# View logs with timestamps
+kubectl logs -f deployment/pingwatch --timestamps
 ```
 
 ## Troubleshooting
 
-### Port Conflicts
-If you get port binding errors, ensure your local PostgreSQL and Redis services are not running on ports 5432 and 6379. The app uses alternate ports (15432, 16379) to avoid conflicts.
+### Minikube Issues
+```bash
+# Reset minikube if having issues
+minikube delete
+minikube start --cpus=4 --memory=8192 --disk-size=20g
 
-### Permission Issues
-If containers fail to start due to permission errors:
-```sh
-# Fix file permissions
-sudo chown -R $(id -u):$(id -g) tmp log storage
-sudo chmod -R 777 tmp log storage
-sudo chmod 644 config/master.key
+# Check minikube status
+minikube status
+minikube dashboard
 ```
 
-### Database Issues
-If you encounter database errors:
-```sh
-# Reset the database
-docker-compose down
-docker-compose up -d db redis
-docker-compose run --rm web bundle exec rails db:drop db:create db:migrate
-docker-compose up -d
+### Pod Startup Issues
+```bash
+# Check pod events
+kubectl describe pod <pod-name>
+
+# Check pod logs
+kubectl logs <pod-name>
+
+# Check if secrets/configmaps exist
+kubectl get secrets
+kubectl get configmaps
 ```
 
-### Container Won't Start
-```sh
-# Check logs for errors
-docker-compose logs web
+### Database Connection Issues
+```bash
+# Check if PostgreSQL is running
+kubectl get pods -l app=postgres
 
-# Rebuild containers
-docker-compose down
-docker-compose build --no-cache
-docker-compose up -d
+# Check PostgreSQL logs
+kubectl logs -f deployment/postgres
+
+# Test database connection
+kubectl exec -it deployment/pingwatch -- bin/rails db:version
 ```
 
-### Missing Environment Variables
-If you get errors about missing environment variables:
-```sh
-# Check if .env file exists
-ls -la .env
+### Sidekiq Issues
+```bash
+# Check Sidekiq pods
+kubectl get pods -l app=sidekiq
 
-# Create .env file if missing
-cat > .env << EOF
-SECRET_KEY_BASE=$(openssl rand -hex 64)
-POSTGRES_USERNAME=postgres
-POSTGRES_PASSWORD=your_secure_password_here
-DATABASE_NAME=pingwatch_production
-EOF
+# Check Sidekiq logs
+kubectl logs -f deployment/sidekiq
+
+# Check Redis connection
+kubectl exec -it deployment/redis -- redis-cli ping
 ```
 
-### Docker Compose 'ContainerConfig' Error
-If you encounter `KeyError: 'ContainerConfig'` when running `docker-compose up --build`:
-```sh
-# Clean up Docker system
-docker system prune -f
+### Image Pull Issues
+```bash
+# For offline/limited connectivity scenarios
+# Build image locally and load into minikube
+docker build -t pingwatch:prod .
+minikube image load pingwatch:prod
 
-# Remove all containers and volumes
-docker-compose down -v
+# Verify image is loaded
+minikube image ls | grep pingwatch
 
-# Rebuild from scratch
-docker-compose build --no-cache
+# For internet-connected scenarios
+# Push to registry and pull in minikube
+docker tag pingwatch:prod your-registry/pingwatch:prod
+docker push your-registry/pingwatch:prod
+# Update deployment to use registry image
 
-# Start services
-docker-compose up -d
-
-# Run migrations (if needed)
-docker-compose run --rm web bundle exec rails db:migrate
+# Check image pull status
+kubectl describe pod <pod-name> | grep -A 10 Events
 ```
 
-This error typically occurs due to corrupted Docker images or containers and requires a complete cleanup and rebuild.
+### Service Access Issues
+```bash
+# Check if service exists
+kubectl get service pingwatch
 
-## Scheduling Pings
-- Use cron or a scheduler to run:
-  ```sh
-  docker-compose run --rm web rails pingwatch:ping_all
-  ```
-  every 5 minutes.
+# Check service endpoints
+kubectl get endpoints pingwatch
 
-## Kubernetes Readiness
-- All secrets and DB config are externalized via env vars.
-- Healthcheck: `/healthcheck`
-- Prometheus metrics: `/metrics`
-- Use a K8s CronJob for periodic pings.
+# Check service type and ports
+kubectl get service pingwatch -o yaml
 
-## Recent Fixes Applied
-- Fixed database migrations to remove user references (app doesn't use authentication)
-- Added proper .env file setup for SECRET_KEY_BASE
-- Fixed file permissions for Docker containers
-- Disabled force_ssl for local development
-- Fixed stylesheet references in application layout
-- Updated docker-compose.yml with correct environment variables
-- Changed web server port from 3000 to 3001
-- Added comprehensive Docker commands documentation
+# For NodePort access issues
+kubectl get nodes -o wide
+minikube ip
+
+
+
+# Alternative: Use minikube service with tunnel
+minikube service pingwatch
+# Keep terminal open - tunnel will stay active until Ctrl+C
+```
+
+### Network Connectivity Issues
+```bash
+# Check if minikube can access external resources
+kubectl run test-connectivity --image=busybox --rm -it --restart=Never -- nslookup google.com
+
+# Test DNS resolution inside minikube
+kubectl run dns-test --image=busybox --rm -it --restart=Never -- nslookup kubernetes.default
+
+# Check if minikube has internet access
+kubectl run curl-test --image=curlimages/curl --rm -it --restart=Never -- curl -I https://google.com
+
+# For offline scenarios, ensure all images are loaded locally
+minikube image ls
+
+# Load additional images if needed
+minikube image load postgres:13
+minikube image load redis:7
+minikube image load prom/prometheus:latest
+```
+
+## Production Deployment
+
+### Environment Variables
+Create a `k8s/base/secrets.yaml` file with production secrets:
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pingwatch-secret
+type: Opaque
+data:
+  SECRET_KEY_BASE: <base64-encoded-secret>
+  POSTGRES_PASSWORD: <base64-encoded-password>
+  REDIS_PASSWORD: <base64-encoded-password>
+```
+
+### Scaling
+```bash
+# Scale web application
+kubectl scale deployment pingwatch --replicas=3
+
+# Scale Sidekiq workers
+kubectl scale deployment sidekiq --replicas=5
+
+# Scale PostgreSQL (if using StatefulSet)
+kubectl scale statefulset postgres --replicas=1
+```
+
+### Monitoring
+- Prometheus metrics available at `/metrics`
+- Health check endpoint at `/health`
+- Use Prometheus and Grafana for monitoring
+- Set up alerts for pod failures and high resource usage
+
+## Service Access Methods
+
+### Understanding Service Types
+- **ClusterIP**: Internal access only (default)
+- **NodePort**: External access via node IP + port (30000-32767)
+- **Port Forward**: Temporary local access via kubectl
+
+### Recommended Access Methods for Development
+
+#### 1. NodePort (Best for Development)
+```bash
+# Service is already configured as NodePort
+kubectl apply -f k8s/base/app/service.yaml
+
+# Get minikube IP and access
+MINIKUBE_IP=$(minikube ip)
+echo "Access your app at: http://$MINIKUBE_IP:30080"
+echo "Access metrics at: http://$MINIKUBE_IP:30394/metrics"
+```
+
+#### 2. minikube service (Convenient but requires tunnel)
+```bash
+# Creates tunnel automatically
+minikube service pingwatch
+# Keep terminal open - access via provided URLs
+# Press Ctrl+C to stop tunnel
+```
+
+#### 2. kubectl port-forward (Simple temporary access)
+```bash
+# Forward local port to service
+kubectl port-forward service/pingwatch 3000:3000
+# Access at http://localhost:3000
+# Keep terminal open - Ctrl+C to stop
+```
+
+## Quick Reference Commands
+
+### Complete Deployment (Online)
+```bash
+minikube start --driver=docker
+docker build -t pingwatch:prod .
+docker push your-registry/pingwatch:prod
+kubectl apply -f k8s/base/
+# Access via NodePort: http://$(minikube ip):30080
+# Or use: minikube service pingwatch
+```
+
+### Complete Deployment (Offline)
+```bash
+minikube start --driver=docker
+docker build -t pingwatch:prod .
+minikube image load pingwatch:prod
+minikube image load postgres:13
+minikube image load redis:7
+kubectl apply -f k8s/base/
+# Access via NodePort: http://$(minikube ip):30080
+# Or use: minikube service pingwatch
+```
+
+### Complete Cleanup
+```bash
+kubectl delete -f k8s/base/
+kubectl delete pvc --all
+minikube stop
+minikube delete
+```
+
+## Development Workflow
+
+### Local Development
+1. Make code changes
+2. Test locally with `bin/rails server`
+3. Run tests with `bin/rails test`
+4. Commit changes
+
+### Kubernetes Deployment
+1. Build new Docker image: `docker build -t pingwatch:prod .`
+2. Update deployment: `kubectl set image deployment/pingwatch pingwatch=pingwatch:prod`
+3. Monitor rollout: `kubectl rollout status deployment/pingwatch`
+4. Verify deployment: `kubectl get pods`
+
+### Database Changes
+1. Create migration: `bin/rails generate migration AddNewField`
+2. Test locally: `bin/rails db:migrate`
+3. Deploy to Kubernetes: `kubectl exec -it deployment/pingwatch -- bin/rails db:migrate`
 
 ---
+
+## Recent Updates
+- Removed Docker Compose references
+- Added comprehensive Kubernetes/minikube setup
+- Updated troubleshooting for Kubernetes environment
+- Added production deployment guidelines
+- Included monitoring and scaling instructions

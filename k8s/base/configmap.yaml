@@ -4,4 +4,7 @@ metadata:
   name: pingwatch-config
 data:
   RAILS_ENV: "production"
-  REDIS_URL: "redis://redis:6379/0" 
+  REDIS_URL: "redis://redis:6379/0"
+  PROMETHEUS_EXPORTER_HOST: "prometheus-exporter"
+  PROMETHEUS_EXPORTER_PORT: "9394"
+  

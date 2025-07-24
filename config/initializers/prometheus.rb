@@ -1,9 +1,12 @@
 # config/initializers/prometheus.rb
+# config/initializers/prometheus.rb
 
+return if ARGV.any?{|arg| arg.include?('db:') || arg.include?('migrate')}
+
+# Remove client configuration - let the gem handle it automatically
 if defined?(Sidekiq) && Sidekiq.server?
     # SIDEKIQ SETUP
     require 'prometheus_exporter/instrumentation'
-    require 'prometheus_exporter/client'
   
     Sidekiq.configure_server do |config|
       config.server_middleware do |chain|
